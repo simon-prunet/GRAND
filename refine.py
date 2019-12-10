@@ -31,7 +31,8 @@ class Simulation (object):
             if ('RandomSeed' in s):
                 self.RandomSeed = np.float(s[1])
             if ('GeomagneticField' in s and len(s)==7):
-                self.BfieldInclination = s[3]
+                self.BfieldInclination = np.float(s[3])
+
             
         f.close()
         try:
@@ -47,13 +48,40 @@ class Simulation (object):
         self.Xmax = np.float(s[1])
         f.close()
         
+
         # Compute unit vector of shower propagation. az_rad and zen_rad are seen from source perspective.
         az_rad  = np.deg2rad(180.0-self.PrimaryAzimAngle)
         zen_rad = np.deg2rad(180.0+self.PrimaryZenAngle)
         self.ShowerAxis = np.array([np.cos(az_rad)*np.sin(zen_rad),np.sin(az_rad)*np.sin(zen_rad),np.cos(zen_rad)])
 
+        # Compute cartesian position of Xmax point
+        self.Xmax_position = np.array([0.0,0.0,self.InjectionAltitude])+self.Xmax * self.ShowerAxis 
+
         # Compute B field unit vector
         az_bfield = 0.0 # North is magnetic in this coordinate system
-        zen_bfield = np.deg2rad(90.0+self.Bfield_Inclination)
+        zen_bfield = np.deg2rad(90.0+self.BfieldInclination)
         self.BfieldAxis = np.array([np.cos(az_bfield)*np.sin(zen_bfield),np.sin(az_bfield)*np.sin(zen_bfield),np.cos(zen_bfield)])
         
+
+    def in_cone(self,xyz,max_ang=3.0, from_Xmax=True):
+
+        '''
+        This routine will take the shower parameters and a maximum opening angle to compute if a a given cartesian position is
+        within a cone centered on the shower axis and whose origin is at the Xmax position (from_Xmax=True) or from injection position.
+        This will be used for primary refinement.
+        '''
+
+        if (not from_Xmax):
+            xyz_start = np.array([0.0,0.0,self.InjectionAltitude])
+        else:
+            xyz_start = self.Xmax_position
+
+        dxyz = xyz - xyz_start
+        if (np.linalg.norm(dxyz) < 1e-10):
+            return True
+        elif (np.dot(dxyz,self.ShowerAxis) > np.cos(np.deg2rad(max_ang)) * np.sqrt(np.linalg.norm(dxyz)*np.linalg.norm(self.ShowerAxis)) ):
+            return True
+        else:
+            return False
+
+

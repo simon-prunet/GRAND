@@ -63,7 +63,7 @@ class Simulation (object):
         self.BfieldAxis = np.array([np.cos(az_bfield)*np.sin(zen_bfield),np.sin(az_bfield)*np.sin(zen_bfield),np.cos(zen_bfield)])
         
 
-    def in_cone(self,xyz,max_ang=3.0, from_Xmax=True):
+    def in_cone(self,xyz,max_ang=3.0, from_Xmax=True, above_ground=True):
 
         '''
         This routine will take the shower parameters and a maximum opening angle to compute if a a given cartesian position is
@@ -79,9 +79,31 @@ class Simulation (object):
         dxyz = xyz - xyz_start
         if (np.linalg.norm(dxyz) < 1e-10):
             return True
-        elif (np.dot(dxyz,self.ShowerAxis) > np.cos(np.deg2rad(max_ang)) * np.sqrt(np.linalg.norm(dxyz)*np.linalg.norm(self.ShowerAxis)) ):
-            return True
+        elif (np.dot(dxyz,self.ShowerAxis) > np.cos(np.deg2rad(max_ang)) * np.linalg.norm(dxyz)*np.linalg.norm(self.ShowerAxis)):
+            if (above_ground):
+                if (xyz[2] > 0.0): #We are above the ground
+                    return True
+                else:
+                    return False
+            else:
+                return True
         else:
             return False
+
+
+class Grid (Simulation):
+
+    def __init__(self,ZHAireS_inputfile,Xmax_file='Xmax.dat',grid_width=100.0):
+
+        super().__init__(ZHAireS_inputfile,Xmax_file)
+        self.grid_width = grid_width * 1000 # in meters
+        self.axis_u = np.cross(self.ShowerAxis,self.BfieldAxis)
+        self.axis_u /= np.linalg.norm(self.axis_u)
+        self.axis_v = np.cross(self.ShowerAxis,self.axis_u)
+        self.axis_w = self.ShowerAxis
+
+        self.x0 = self.Xmax_position - self.grid_width/2 * (self.axis_u+self.axis_v)
+
+        self.TreeMesh = discretize.TreeMesh(h=[(self.grid_width,1)]*3,axis_u=self.axis_u,axis_v=self.axis_v,axis_w=self.axis_w,x0=self.x0)
 
 

@@ -93,17 +93,42 @@ class Simulation (object):
 
 class Grid (Simulation):
 
-    def __init__(self,ZHAireS_inputfile,Xmax_file='Xmax.dat',grid_width=100.0):
+    def __init__(self,ZHAireS_inputfile,Xmax_file='Xmax.dat',grid_width=100.0,grid_res=1024):
 
         super().__init__(ZHAireS_inputfile,Xmax_file)
         self.grid_width = grid_width * 1000 # in meters
-        self.axis_u = np.cross(self.ShowerAxis,self.BfieldAxis)
-        self.axis_u /= np.linalg.norm(self.axis_u)
-        self.axis_v = np.cross(self.ShowerAxis,self.axis_u)
-        self.axis_w = self.ShowerAxis
 
-        self.x0 = self.Xmax_position - self.grid_width/2 * (self.axis_u+self.axis_v)
+        # Initiate rotated axis vectors and affine transforms.
+        # This is to keep the grid coordinates in unrotated coordinates
 
-        self.TreeMesh = discretize.TreeMesh(h=[(self.grid_width,1)]*3,axis_u=self.axis_u,axis_v=self.axis_v,axis_w=self.axis_w,x0=self.x0)
+        axis_u = np.cross(self.ShowerAxis,self.BfieldAxis)
+        axis_u /= np.linalg.norm(axis_u)
+        axis_v = np.cross(self.ShowerAxis,axis_u)
+        axis_w = self.ShowerAxis
+
+        self.x0 = self.Xmax_position - self.grid_width/2 * (axis_u+axis_v)
+        self.rotation_matrix = np.vstack((axis_u,axis_v,axis_w)) 
+        self.TreeMesh = discretize.TreeMesh(h=[[(self.grid_width,grid_res)]]*3)
+
+    def grid_to_global(self,xyz):
+        '''
+        Computes the rotated, shifted coordinates from the local grid coordinates
+        '''
+        if (xyz.shape[0]!=3):
+            print ("Input vector has the wrong shape %s\n"%xyz.shape)
+            sys.exit(2)
+        return np.dot(self.rotation_matrix,xyz)+self.x0[:,None]
+
+    def global_to_grid(self,xyz):
+        '''
+        Computes the local grid coordinates from the shower coordinates
+        '''
+        if (xyz.shape[0]!=3):
+            print ("Input vector has the wrong shape %s\n"%xyz.shape)
+            sys.exit(2)
+        res = xyz.copy()
+        res -= self.x0[:,None]
+        return np.dot(self.rotation_matrix.T,res)
+
 
 

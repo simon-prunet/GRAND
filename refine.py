@@ -93,11 +93,11 @@ class Simulation (object):
 
 class Grid (Simulation):
 
-    def __init__(self,ZHAireS_inputfile,Xmax_file='Xmax.dat',grid_width=100.0,grid_res=1024):
+    def __init__(self,ZHAireS_inputfile,Xmax_file='Xmax.dat',grid_length=100.0, max_ang=3.0, max_level=6):
 
         super().__init__(ZHAireS_inputfile,Xmax_file)
-        self.grid_width = grid_width * 1000 # in meters
-
+        self.grid_length = grid_length * 1000 # in meters
+        self.grid_width = self.grid_length * np.tan(np.deg2rad(max_ang)) * 2.0 # Grid will be elongated to cover cone
         # Initiate rotated axis vectors and affine transforms.
         # This is to keep the grid coordinates in unrotated coordinates
 
@@ -106,9 +106,8 @@ class Grid (Simulation):
         axis_v = np.cross(self.ShowerAxis,axis_u)
         axis_w = self.ShowerAxis
 
-        self.x0 = self.Xmax_position - self.grid_width/2 * (axis_u+axis_v)
+        self.x0 = self.Xmax_position # Grid will be centered in u,v directions, not in w
         self.rotation_matrix = np.vstack((axis_u,axis_v,axis_w)) 
-        self.TreeMesh = discretize.TreeMesh(h=[[(self.grid_width,grid_res)]]*3)
 
     def grid_to_global(self,xyz):
         '''

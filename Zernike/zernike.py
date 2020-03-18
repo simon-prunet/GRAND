@@ -29,52 +29,77 @@ def zernike_nm(n,m,X,Y):
 
 
 
-def zernike_array_noll(coeffs,X,Y):
+def zernike_array_noll(coeffs,X,Y,js):
     '''
     Computes the direct Zernike transform \sum_j c_j Zernike_j(X,Y),
-    where c_j are the coefficients 
+    where c_j are the coefficients and j \in js.
     '''
 
-    jmax = len(coeffs)
+    # Make sure coeffs and js are of same length
+    if (len(js)!=len(coeffs)):
+        print ("list of js and coeffs should be the same size")
+        return
 
     res = np.zeros_like(X)
-    # Noll j index starts at 1
-    for j in np.arange(1,jmax+1):
-        res += coeffs[j-1] * zernike_noll(j,X,Y)
+    i=0
+    for j in js:
+        res += coeffs[i] * zernike_noll(j,X,Y)
+        i+=1
 
     return (res)
 
-def zernike_array_noll_transpose(vec,jmax,X,Y):
+def zernike_array_noll_transpose(vec,X,Y,js):
     '''
     Computes the transpose of the Zernike transform
     c_j = \sum_i vec_i Zernike_j(X_i,Y_i) = <vec_i,Zernike_j(X,Y)>
     '''
-    res = np.zeros(jmax)
 
-    for j in np.arange(1,jmax+1):
-        res[j-1] = np.dot(vec,zernike_noll(j,X,Y))
+    res = np.zeros(len(js))
+    i=0
+    for j in js:
+        res[i] = np.dot(vec,zernike_noll(j,X,Y))
+        i+=1
     return (res)
 
-def gram_matrix(coeffs,X,Y):
+def gram_matrix(coeffs,X,Y,js):
 
     '''
     Computes A^T.A.c where A is the direct Zernike transform
     '''
 
-    jmax = len(coeffs)
-    vec = zernike_array_noll(coeffs,X,Y)
-    res = zernike_array_noll_transpose(vec,jmax,X,Y)
+    # Make sure coeffs and js are of same length
+    if (len(js)!=len(coeffs)):
+        print ("list of js and coeffs should be the same size")
+        return
+    vec = zernike_array_noll(coeffs,X,Y,js)
+    res = zernike_array_noll_transpose(vec,X,Y,js)
 
     return (res)
 
-def compute_zernike_coeffs(vec,jmax,X,Y):
+def compute_zernike_coeffs(vec,X,Y,js):
 
     '''
     Compute Zernike coefficients from vector using normal equations
     '''
-    rhs = zernike_array_noll_transpose(vec,jmax,X,Y)
-    res = cg_solve(rhs,gram_matrix,np.zeros(jmax),args=(X,Y))
+    rhs = zernike_array_noll_transpose(vec,X,Y,js)
+    res = cg_solve(rhs,gram_matrix,np.zeros(len(js)),args=(X,Y,js))
 
     return (res)
+
+def compute_j_list(nmax,mmax):
+    '''
+    Construct a list of Noll indices with n<=nmax, abs(m)<=mmax
+    '''
+    l=[]
+    (n,m)=(0,0)
+    j=1
+    while (n<=nmax):
+        (n,m) = aotools.zernIndex(j)
+        if (abs(m)<=mmax and n<=nmax):
+            l.append(j)
+        j+=1
+
+    return (l)
+
 
 

@@ -7,6 +7,9 @@ def zernike_noll(j,X,Y):
     (n,m) = aotools.zernIndex(j)
     return zernike_nm(n,m,X,Y)
 
+def zernike_radial_n(n,m,r):
+    return (np.sqrt(2.0*(n+1)) * aotools.zernikeRadialFunc(n,m,r))
+
 def zernike_nm(n,m,X,Y):
 
     R = np.sqrt(X**2 + Y**2)
@@ -18,7 +21,7 @@ def zernike_nm(n,m,X,Y):
     phi = np.arctan2(Y,X)
 
     if (m==0):
-        return (aotools.zernikeRadialFunc(n,0,R))
+        return (np.sqrt(n+1.)*aotools.zernikeRadialFunc(n,0,R))
     else:
 
         if (m>0):
@@ -61,7 +64,7 @@ def zernike_array_noll_transpose(vec,X,Y,js):
         i+=1
     return (res)
 
-def gram_matrix(coeffs,X,Y,js):
+def gram_matrix(coeffs,X,Y,js,regul=0):
 
     '''
     Computes A^T.A.c where A is the direct Zernike transform
@@ -73,24 +76,25 @@ def gram_matrix(coeffs,X,Y,js):
         return
     vec = zernike_array_noll(coeffs,X,Y,js)
     res = zernike_array_noll_transpose(vec,X,Y,js)
-
+    res += regul*coeffs
     return (res)
 
-def compute_zernike_coeffs(vec,X,Y,js):
+def compute_zernike_coeffs(vec,X,Y,js,regul=0):
 
     '''
     Compute Zernike coefficients from vector using normal equations
     '''
     rhs = zernike_array_noll_transpose(vec,X,Y,js)
-    res = cg_solve(rhs,gram_matrix,np.zeros(len(js)),args=(X,Y,js))
+    res = cg_solve(rhs,gram_matrix,np.zeros(len(js)),args=(X,Y,js,regul))
 
     return (res)
 
-def compute_j_list(nmax,mmax):
+def compute_j_list(nmax,mmax_in):
     '''
     Construct a list of Noll indices with n<=nmax, abs(m)<=mmax
     '''
     l=[]
+    mmax = np.min((mmax_in,nmax))
     (n,m)=(0,0)
     j=1
     while (n<=nmax):
@@ -100,6 +104,72 @@ def compute_j_list(nmax,mmax):
         j+=1
 
     return (l)
+
+def compute_j_list_n(n,mmax_in):
+    '''
+    Construct a list of Noll indices of a given n, for all valid (abs(m)<=n)
+    '''
+    mmax = np.min((mmax_in,n))
+    l=[]
+    if ((n-mmax)%2):
+        m=-mmax+1
+    else:
+        m=-mmax
+
+    while (m<=mmax):
+        j=(n*(n+1))/2+abs(m)
+        tt = n%4 < 2
+        if (m>=0 and not tt):
+            j += 1
+        if (m<=0 and tt):
+            j += 1
+        l.append(j)
+        m += 2
+
+    return l
+
+
+### The two following routines define respectively a quadrature set (points and weights) for the Zernike polynomials on the unit
+### disc, as well as a Zernike transform that relies on the Zernike orthogonality on said quadrature set.
+
+def zernike_quad(nmax,mmax):
+    '''
+    Construct a list of quadrature points and associated weights. These must be adapted to compute
+    scalar products involved in the analysis (Zernike transform), hence must have >= 2mmax+1 radial branches,
+    and >= nmax+1 radial points (which allows integration of polynomials up to degree 2nmax+1). Note that
+    the radial measure is proportional to radius for Zernike polynomials orthogonality, hence the shifted Jacobi polynomial
+    P_{nmax+1}^{0,1}(2r-1) is chosen for the radial quadrature.
+    '''
+
+    # First define radial points and weights
+    from scipy.special import roots_jacobi
+    
+    xx,w8 = roots_jacobi(nmax+1,0,1) # xx in [-1,1]
+    r = (xx+1.)/2.
+    theta = np.arange(2*mmax+1)/(2.*mmax+1.)*2.*np.pi
+    ctheta = np.cos(theta)
+    stheta = np.sin(theta)
+
+    X = np.outer(r,ctheta).flatten()
+    Y = np.outer(r,stheta).flatten()
+    # Normalize weights: factor of 4 for shifted polynomial variable change, factor of (2*mmax+1)/2. for angular integration
+    w8 /= 2.*(2*mmax+1.)
+    W = np.outer(w8,np.ones_like(ctheta)).flatten()
+
+    return X,Y,W
+
+def zernike_array_noll_inverse(vec,X,Y,js,W):
+    ''' 
+    Computes the Zernike coefficients from sampled 2D map using quadrature points and weights
+    '''
+    res = np.zeros(len(js))
+    
+    for i,j in enumerate(js):
+        res[i] = np.dot(vec,zernike_noll(j,X,Y)*W)
+
+    return (res)
+
+
 
 
 

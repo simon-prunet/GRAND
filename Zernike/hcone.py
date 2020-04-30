@@ -72,7 +72,7 @@ def compute_j_N_list(nmax,mmax):
     return ll
 
 
-def cone_quad(nmax,mmax,normalized=True):
+def cone_quad(nmax,mmax,normalized=False,return_XYt=True):
 
     ''' 
     Computes cone samples and quadrature weights for orthonormal polynomials
@@ -80,7 +80,9 @@ def cone_quad(nmax,mmax,normalized=True):
     Contiguous samples are within each disc
     If normalized is set to True, each disc is normalized to the unit disc, these are the
     coordinates that are relevant for Zernike polynomials. Only use unnormalized coordinates
-    for display purposes
+    for display purposes.
+    If return_XYt is set to true, return independently X,Y coordinates of unit disc and t coordinate of cone axis.
+    These are the coordinates used to compute the cone polynomials.
     '''
     X,Y,W = zk.zernike_quad(nmax,mmax)
     t,wt = jacobi_quad(nmax)
@@ -91,6 +93,41 @@ def cone_quad(nmax,mmax,normalized=True):
     else:
         XX = np.outer(t,X).flatten()
         YY = np.outer(t,Y).flatten()
-    ZZ = np.outer(t,np.ones_like(X))
+    ZZ = np.outer(t,np.ones_like(X)).flatten()
 
-    return (XX,YY,ZZ,W8)
+    if (return_XYt):
+        return (XX,YY,ZZ,W8,X,Y,t)
+    else:
+        return (XX,YY,ZZ,W8)
+
+def cone_array_noll_inverse(vec,X,Y,t,jNlist,W8):
+
+    '''
+    compute inverse cone polynomial transform using orthonormal polynomials on quadrature set
+    '''
+    res = np.zeros(len(jNlist))
+    for i,(j,N) in enumerate(jNlist):
+        res[i] = np.dot(vec,cone_polynomial_noll(N,j,X,Y,t)*W8)
+
+    return (res)
+
+def cone_array_noll(coeffs,X,Y,t,jNlist):
+    '''
+    Computes the direct cone polynomial transform \sum_Nj c_Nj Cone_Nj(X,Y,t),
+    where c_Nj are the coefficients and N,j \in jNlist.
+    '''
+
+    # Make sure coeffs and js are of same length
+    if (len(jNlist)!=len(coeffs)):
+        print ("list of js and coeffs should be the same size")
+        return
+
+    res = np.zeros(X.size*t.size)
+    for i,(j,N) in enumerate(jNlist):
+        res += coeffs[i] * cone_polynomial_noll(N,j,X,Y,t)
+
+    return (res)
+
+
+
+

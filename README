@@ -1,0 +1,2 @@
+analysis.py: code to use Zernike polynomial fit to star shape antennas arrival times and peak amplitude, and to predict at random locations within the same disc footprint.
+Produces a few figures.

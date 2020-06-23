@@ -2,8 +2,9 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from Simulations import hdf5fileinout as hdf5io
 from Zernike import zernike
-nmax=8
+nmax=9
 mmax=3
+regul=0
 azim=-66
 elev=10
 xfigsize=16
@@ -56,8 +57,8 @@ peakamplituderef = peakamplitude[ou]
 # Compute list of js from nmax, mmax
 js = zernike.compute_j_list(nmax,mmax)
 # Compute Zernike coefficients
-peaktime_coeffs = zernike.compute_zernike_coeffs(peaktimeref,Xrefn,Yrefn,js)
-peakamplitude_coeffs = zernike.compute_zernike_coeffs(peakamplituderef,Xrefn,Yrefn,js)
+peaktime_coeffs = zernike.compute_zernike_coeffs(peaktimeref,Xrefn,Yrefn,js,regul=regul)
+peakamplitude_coeffs = zernike.compute_zernike_coeffs(peakamplituderef,Xrefn,Yrefn,js,regul=regul)
 
 fitted_peaktimeref = zernike.zernike_array_noll(peaktime_coeffs,Xrefn,Yrefn,js)
 fitted_peakamplituderef = zernike.zernike_array_noll(peakamplitude_coeffs,Xrefn,Yrefn,js)

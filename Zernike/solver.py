@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def cg_solve(b,Amul,x0,epsilon=1e-6,nstepmax=500,Mdiv=None,args=None):
+def cg_solve(b,Amul,x0,epsilon=1e-6,nstepmax=500,Mdiv=None,args=None,verbose=True):
 
   x = x0.copy()
   nn=0
@@ -15,11 +15,12 @@ def cg_solve(b,Amul,x0,epsilon=1e-6,nstepmax=500,Mdiv=None,args=None):
   while (nn<nstepmax):
     Ap = Amul(p,*args)
     alpha = rzold / np.vdot(p,Ap)
-    print("alpha",alpha)
     x = x + alpha*p
     r = r - alpha*Ap
     print ("|r|=%f"%np.linalg.norm(r))
+
     if (cg_crit(r,epsilon)):
+      print ("|r|=%f"%np.linalg.norm(r))
       return x
     if (Mdiv is not None):
       z=Mdiv(r)

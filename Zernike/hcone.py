@@ -51,6 +51,16 @@ def cone_polynomial_noll(N,j,X,Y,t):
     return np.outer(cj,zz).flatten()
 
 
+def cone_p_noll(N,j,XX,YY,ZZ):
+    '''
+    Same as before, but input coordinates are not factorized
+    '''
+    n,m = aotools.zernIndex(j)
+    cj = cone_jacobi(N,n,ZZ)
+    zz = zk.zernike_noll(j,XX,YY)
+
+    return cj*zz
+
 def compute_j_N_list(nmax,mmax):
 
     '''
@@ -128,6 +138,34 @@ def cone_array_noll(coeffs,X,Y,t,jNlist):
 
     return (res)
 
+def cone_array_p_noll(coeffs,XX,YY,ZZ,jNlist):
+    '''
+    Same as before, but coordinates are not factorized
+    '''
+    # Make sure coeffs and js are of same length
+    if (len(jNlist)!=len(coeffs)):
+        print ("list of js and coeffs should be the same size")
+        return
+
+    res = np.zeros(XX.size)
+    for i,(j,N) in enumerate(jNlist):
+        res += coeffs[i] * cone_p_noll(N,j,XX,YY,ZZ)
+
+    return (res)
 
 
+def random_sample(n):
+    '''
+    Samples uniformly in a cone, returning samples in normalized coordinates
+    '''
+    x = np.random.uniform(size=n)
+    r = np.sqrt(x)
+    phi = np.random.uniform(high=2.0*np.pi,size=n)
+    z = np.random.uniform(size=n)
+
+    X = r*np.cos(phi)
+    Y = r*np.sin(phi)
+    Z = np.power(z,1./3.)
+
+    return X,Y,Z
 

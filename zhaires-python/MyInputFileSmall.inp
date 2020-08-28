@@ -1,0 +1,309 @@
+####################################################################################
+# Inputfile Generated with GenerateStarshapeFromShower:
+# sry file: ./XmaxOutbox/Proton_3.98_77.4_0.0_1/Proton_3.98_77.4_0.0_1.sry
+# skeleton file: GRAND.Normal.Dunhuang.Skeleton.inp
+# maximum was at an altitude of 10.9 Km in (43.120,0.000,10.760)
+# computed refractivity at emision: 86.0655 cherenkov angle: 0.7517 deg
+# effective refractivity to origin: 144.9424 cherenkov angle: 0.9755 deg
+# Generating a starshape width of 4.13 times the effective cherenkov cone
+# at a distance of 47.19 km (wich includes a 3km displacement to accomodate that xmax radio is before xmax)
+# using the distance to xmax and the energy to adjust the input width: inputwidth-2*np.sqrt(dist[km])/10 + 5.5+3*log10(E[EeV]))/(dist[km]/5 + 1) + log10(E[EeV])/2
+####################################################################################
+
+##############################################################################
+# Aires simulation header generated with CreateAiresInputHeader                #
+################################################################################
+TaskName Stshp_Proton_3.98_77.4_0.0_1
+PrimaryParticle Proton
+PrimaryEnergy 3.9811 EeV
+PrimaryZenAngle  77.35 deg
+PrimaryAzimAngle 0.0 deg Magnetic
+RandomSeed 0.214437935
+################################################################################
+
+####################################################################################
+# Starshape Pattern created with CreateAiresZernikeQuadInp v1.3
+# mountain slope: 0.00 deg
+# mountain azimuth: 0.00 deg
+# cone vertex distance: 47.192 Km
+# cone angle: 2.01 deg
+# Number of Antennas per ray: 189
+# Projection Mode: conical
+# Magnetic Field Zenith: 150.79 deg
+# Magnetic Field Azimuth: 0.00 deg
+# Adjusting time window with distance
+####################################################################################
+
+ZHAireS On
+FresnelTime On
+AntennaTimeMin -183.9 ns
+AntennaTimeMax 383.9 ns
+ExpectedXmaxDist 44192.0 m
+AddAntenna A0        0.00       12.53        0.00
+AddAntenna A1      -36.80        9.60        0.00
+AddAntenna A2      -56.41        2.18       -0.00
+AddAntenna A3      -49.60       -6.27        0.00
+AddAntenna A4      -19.57      -11.78       -0.00
+AddAntenna A5       19.56      -11.77        0.00
+AddAntenna A6       49.49       -6.26        0.00
+AddAntenna A7       56.27        2.17        0.00
+AddAntenna A8       36.75        9.59       -0.00
+AddAntenna A9        0.00       41.75        0.00
+AddAntenna A10     -122.86       32.06        0.00
+AddAntenna A11     -188.48        7.28       -0.00
+AddAntenna A12     -165.67      -20.95       -0.00
+AddAntenna A13      -65.29      -39.29        0.00
+AddAntenna A14       65.12      -39.18        0.00
+AddAntenna A15      164.54      -20.80       -0.00
+AddAntenna A16      187.02        7.22        0.00
+AddAntenna A17      122.23       31.90       -0.00
+AddAntenna A18        0.00       86.98        0.00
+AddAntenna A19     -256.64       66.98        0.00
+AddAntenna A20     -394.31       15.23        0.00
+AddAntenna A21     -346.41      -43.80       -0.00
+AddAntenna A22     -136.22      -81.96       -0.00
+AddAntenna A23      135.46      -81.50        0.00
+AddAntenna A24      341.52      -43.18        0.00
+AddAntenna A25      387.99       14.98       -0.00
+AddAntenna A26      253.95       66.28        0.00
+AddAntenna A27        0.00      147.28        0.00
+AddAntenna A28     -436.19      113.84        0.00
+AddAntenna A29     -671.51       25.93        0.00
+AddAntenna A30     -589.53      -74.54        0.00
+AddAntenna A31     -231.12     -139.06        0.00
+AddAntenna A32      228.93     -137.74        0.00
+AddAntenna A33      575.50      -72.76       -0.00
+AddAntenna A34      653.37       25.23       -0.00
+AddAntenna A35      428.47      111.82        0.00
+AddAntenna A36        0.00      221.44        0.00
+AddAntenna A37     -658.81      171.94        0.00
+AddAntenna A38    -1016.73       39.26        0.00
+AddAntenna A39     -891.83     -112.76        0.00
+AddAntenna A40     -348.33     -209.58        0.00
+AddAntenna A41      343.38     -206.61       -0.00
+AddAntenna A42      860.11     -108.75        0.00
+AddAntenna A43      975.71       37.68        0.00
+AddAntenna A44      641.34      167.38        0.00
+AddAntenna A45        0.00      307.94        0.00
+AddAntenna A46     -921.06      240.39       -0.00
+AddAntenna A47    -1425.59       55.05       -0.00
+AddAntenna A48    -1249.20     -157.94        0.00
+AddAntenna A49     -485.76     -292.27       -0.00
+AddAntenna A50      476.19     -286.52       -0.00
+AddAntenna A51     1187.84     -150.19       -0.00
+AddAntenna A52     1346.23       51.98        0.00
+AddAntenna A53      887.27      231.57       -0.00
+AddAntenna A54        0.00      405.02        0.00
+AddAntenna A55    -1218.75      318.08        0.00
+AddAntenna A56    -1892.60       73.08       -0.00
+AddAntenna A57    -1656.51     -209.44        0.00
+AddAntenna A58     -640.92     -385.63        0.00
+AddAntenna A59      624.38     -375.68       -0.00
+AddAntenna A60     1550.31     -196.02       -0.00
+AddAntenna A61     1755.24       67.78       -0.00
+AddAntenna A62     1160.27      302.82       -0.00
+AddAntenna A63        0.00      510.70        0.00
+AddAntenna A64    -1546.93      403.73       -0.00
+AddAntenna A65    -2411.07       93.10       -0.00
+AddAntenna A66    -2107.59     -266.48       -0.00
+AddAntenna A67     -810.97     -487.95       -0.00
+AddAntenna A68      784.66     -472.11        0.00
+AddAntenna A69     1938.63     -245.11       -0.00
+AddAntenna A70     2192.48       84.66        0.00
+AddAntenna A71     1453.93      379.46        0.00
+AddAntenna A72        0.00      622.84        0.00
+AddAntenna A73    -1899.94      495.86        0.00
+AddAntenna A74    -2973.02      114.80       -0.00
+AddAntenna A75    -2595.19     -328.13       -0.00
+AddAntenna A76     -992.69     -597.29        0.00
+AddAntenna A77      953.55     -573.73       -0.00
+AddAntenna A78     2343.68     -296.33       -0.00
+AddAntenna A79     2647.54      102.23        0.00
+AddAntenna A80     1761.55      459.74       -0.00
+AddAntenna A81        0.00      739.14        0.00
+AddAntenna A82    -2271.40      592.81        0.00
+AddAntenna A83    -3569.17      137.82       -0.00
+AddAntenna A84    -3110.98     -393.34        0.00
+AddAntenna A85    -1182.60     -711.55        0.00
+AddAntenna A86     1127.46     -678.38        0.00
+AddAntenna A87     2756.39     -348.51        0.00
+AddAntenna A88     3110.14      120.10       -0.00
+AddAntenna A89     2076.37      541.91       -0.00
+AddAntenna A90        0.00      857.25        0.00
+AddAntenna A91    -2654.26      692.73       -0.00
+AddAntenna A92    -4188.89      161.75       -0.00
+AddAntenna A93    -3645.56     -460.93       -0.00
+AddAntenna A94    -1376.95     -828.49       -0.00
+AddAntenna A95     1302.77     -783.85       -0.00
+AddAntenna A96     3167.99     -400.55       -0.00
+AddAntenna A97     3570.43      137.87        0.00
+AddAntenna A98     2391.75      624.22       -0.00
+AddAntenna A99        0.00      974.76        0.00
+AddAntenna A100    -3040.97      793.66       -0.00
+AddAntenna A101    -4820.30      186.13        0.00
+AddAntenna A102    -4188.55     -529.59        0.00
+AddAntenna A103    -1571.83     -945.74       -0.00
+AddAntenna A104     1475.90     -888.02        0.00
+AddAntenna A105     3570.19     -451.40       -0.00
+AddAntenna A106     4019.18      155.20       -0.00
+AddAntenna A107     2701.29      705.00        0.00
+AddAntenna A108        0.00     1089.27        0.00
+AddAntenna A109    -3423.51      893.49       -0.00
+AddAntenna A110    -5450.40      210.47       -0.00
+AddAntenna A111    -4728.73     -597.88       -0.00
+AddAntenna A112    -1763.21    -1060.90       -0.00
+AddAntenna A113     1643.39     -988.80        0.00
+AddAntenna A114     3955.31     -500.10       -0.00
+AddAntenna A115     4447.92      171.76       -0.00
+AddAntenna A116     2998.96      782.69        0.00
+AddAntenna A117        0.00     1198.46        0.00
+AddAntenna A118    -3793.60      990.08       -0.00
+AddAntenna A119    -6065.26      234.21        0.00
+AddAntenna A120    -5254.23     -664.33        0.00
+AddAntenna A121    -1947.07    -1171.52       -0.00
+AddAntenna A122     1801.99    -1084.23       -0.00
+AddAntenna A123     4316.40     -545.75       -0.00
+AddAntenna A124     4849.08      187.25       -0.00
+AddAntenna A125     3279.19      855.83        0.00
+AddAntenna A126        0.00     1300.10        0.00
+AddAntenna A127    -4142.89     1081.24       -0.00
+AddAntenna A128    -6650.38      256.80        0.00
+AddAntenna A129    -5752.83     -727.37       -0.00
+AddAntenna A130    -2119.44    -1275.23       -0.00
+AddAntenna A131     1948.65    -1172.47       -0.00
+AddAntenna A132     4647.30     -587.59       -0.00
+AddAntenna A133     5215.97      201.41        0.00
+AddAntenna A134     3536.96      923.10        0.00
+AddAntenna A135        0.00     1392.12        0.00
+AddAntenna A136    -4463.19     1164.84        0.00
+AddAntenna A137    -7191.09      277.68       -0.00
+AddAntenna A138    -6212.33     -785.47        0.00
+AddAntenna A139    -2276.52    -1369.74       -0.00
+AddAntenna A140     2080.65    -1251.89        0.00
+AddAntenna A141     4942.63     -624.93       -0.00
+AddAntenna A142     5542.86      214.04        0.00
+AddAntenna A143     3767.81      983.35        0.00
+AddAntenna A144        0.00     1472.66        0.00
+AddAntenna A145    -4746.72     1238.84        0.00
+AddAntenna A146    -7673.09      296.29       -0.00
+AddAntenna A147    -6620.91     -837.13        0.00
+AddAntenna A148    -2414.79    -1452.94       -0.00
+AddAntenna A149     2195.55    -1321.03        0.00
+AddAntenna A150     5197.83     -657.20       -0.00
+AddAntenna A151     5824.89      224.93        0.00
+AddAntenna A152     3967.89     1035.57        0.00
+AddAntenna A153        0.00     1540.06        0.00
+AddAntenna A154    -4986.38     1301.38        0.00
+AddAntenna A155    -8082.98      312.12       -0.00
+AddAntenna A156    -6967.60     -880.96        0.00
+AddAntenna A157    -2531.09    -1522.92        0.00
+AddAntenna A158     2291.28    -1378.62        0.00
+AddAntenna A159     5409.13     -683.91       -0.00
+AddAntenna A160     6058.10      233.93        0.00
+AddAntenna A161     4133.98     1078.92       -0.00
+AddAntenna A162        0.00     1592.96        0.00
+AddAntenna A163    -5175.99     1350.87       -0.00
+AddAntenna A164    -8408.90      324.71       -0.00
+AddAntenna A165    -7242.78     -915.75        0.00
+AddAntenna A166    -2622.75    -1578.07       -0.00
+AddAntenna A167     2366.14    -1423.66        0.00
+AddAntenna A168     5573.52     -704.70       -0.00
+AddAntenna A169     6239.36      240.93        0.00
+AddAntenna A170     4263.46     1112.71        0.00
+AddAntenna A171        0.00     1630.29        0.00
+AddAntenna A172    -5310.59     1386.00        0.00
+AddAntenna A173    -8641.13      333.67        0.00
+AddAntenna A174    -7438.59     -940.51        0.00
+AddAntenna A175    -2687.62    -1617.10       -0.00
+AddAntenna A176     2418.81    -1455.35       -0.00
+AddAntenna A177     5688.75     -719.27        0.00
+AddAntenna A178     6366.31      245.83        0.00
+AddAntenna A179     4354.37     1136.44        0.00
+AddAntenna A180        0.00     1651.28        0.00
+AddAntenna A181    -5386.60     1405.84       -0.00
+AddAntenna A182    -8772.61      338.75       -0.00
+AddAntenna A183    -7549.34     -954.51        0.00
+AddAntenna A184    -2724.19    -1639.10        0.00
+AddAntenna A185     2448.38    -1473.15        0.00
+AddAntenna A186     5753.30     -727.43        0.00
+AddAntenna A187     6437.39      248.58        0.00
+AddAntenna A188     4405.34     1149.74       -0.00
+####################################################################################
+
+#18 Crosscheck Antennas  ########################################################
+
+AddAntenna CrossCheckA189     2717.98     1011.25        0.00
+AddAntenna CrossCheckA190    -3805.15    -1533.51       -0.00
+AddAntenna CrossCheckA191    -2506.91    -1005.78        0.00
+AddAntenna CrossCheckA192     3023.10      959.58        0.00
+AddAntenna CrossCheckA193     4326.97     -992.69       -0.00
+AddAntenna CrossCheckA194    -4010.20      385.97        0.00
+AddAntenna CrossCheckA195    -4843.48    -1108.24       -0.00
+AddAntenna CrossCheckA196    -5967.22     1070.54        0.00
+AddAntenna CrossCheckA197     4930.05      396.74        0.00
+AddAntenna CrossCheckA198    -2450.17     1042.82        0.00
+AddAntenna CrossCheckA199     5064.80     -239.30       -0.00
+AddAntenna CrossCheckA200    -7864.52      496.38       -0.00
+AddAntenna CrossCheckA201     2466.49     -239.19       -0.00
+AddAntenna CrossCheckA202     5131.69      580.96       -0.00
+AddAntenna CrossCheckA203    -5706.47     -820.53        0.00
+AddAntenna CrossCheckA204    -3039.22    -1451.19        0.00
+AddAntenna CrossCheckA205    -2936.76     -125.57       -0.00
+AddAntenna CrossCheckA206    -2044.52      204.53        0.00
+####################################################################################
+
+
+
+#Skeleton ##############################################################
+#A GRAND SHOWER SKELETON
+#------------------------------------------------------------------------------
+#
+#AIRES Section
+#
+#AIRES Section
+PropagatePrimary On
+
+#Configure the site
+AddSite Dunhuang 40 deg 93.1 deg 1086.00 m
+Site Dunhuang
+Date 2021 5 13
+GeomagneticField 55.997 uT 60.786 deg 0.361 deg
+GroundAltitude 1086 m
+
+#Set up thinning.
+Thinning 1E-5 Rel
+ThinningWFactor 0.06
+TotalShowers 1
+
+#Table Export
+#increase the number of observing levels (more detailed longitudinal files, at the expense of a bigger idf data file)
+ObservingLevels 510 100.000 km 1.09 km
+
+RLimsTables 100 m 20 km
+
+#dont save ground or lgtpcles if you wont use them (waste space)
+SaveNotInFile lgtpcles All
+SaveNotInFile grdpcles All
+
+#This is for the job to finish before it runs out of wall time in Lyon (48hs)
+MaxCpuTimePerRun 120 min
+RunsPerProcess 23
+#This is to make Aires use the local $TMPDIR for the Scratch. This will speed up the simulation and reduce the load on sps
+Import TMPDIR
+FileDirectory Scratch {TMPDIR}
+
+#Speed up sims for radio
+#increase the energy threshold up to 3MeV (specially if you are not interested in the ground particles)..saves up to 50% time
+ElectronCutEnergy 1 MeV
+ElectronRoughCut 1 MeV
+GammaCutEnergy 1 MeV
+GammaRoughCut 1 MeV
+
+#ZHAireS-Specific
+#removes from the fresnel time output the vector potential and the antena positions, leaving only antena number, time and electric field components
+ReducedDATOutput On
+#creates an additional CoREAS compatible output
+CoREASOutput On
+#The Antenna time window is set by the antenna positions generator.
+TimeDomainBin 0.50 ns
+

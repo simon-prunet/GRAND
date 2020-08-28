@@ -64,7 +64,7 @@ def zernike_array_noll_transpose(vec,X,Y,js):
         i+=1
     return (res)
 
-def gram_matrix(coeffs,X,Y,js,regul=0):
+def gram_matrix(coeffs,X,Y,js,weights=1.0,regul=0):
 
     '''
     Computes A^T.A.c where A is the direct Zernike transform
@@ -75,17 +75,20 @@ def gram_matrix(coeffs,X,Y,js,regul=0):
         print ("list of js and coeffs should be the same size")
         return
     vec = zernike_array_noll(coeffs,X,Y,js)
-    res = zernike_array_noll_transpose(vec,X,Y,js)
+    res = zernike_array_noll_transpose(weights*vec,X,Y,js)
     res += regul*coeffs
     return (res)
 
-def compute_zernike_coeffs(vec,X,Y,js,regul=0):
+def compute_zernike_coeffs(vec,X,Y,js,weights=None,regul=0):
 
     '''
     Compute Zernike coefficients from vector using normal equations
+    Possibility to give input weights per antenna location.
     '''
-    rhs = zernike_array_noll_transpose(vec,X,Y,js)
-    res = cg_solve(rhs,gram_matrix,np.zeros(len(js)),args=(X,Y,js,regul))
+    if (weights is None):
+        weights = np.ones_like(vec)
+    rhs = zernike_array_noll_transpose(weights*vec,X,Y,js)
+    res = cg_solve(rhs,gram_matrix,np.zeros(len(js)),args=(X,Y,js,weights,regul))
 
     return (res)
 

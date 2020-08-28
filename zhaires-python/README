@@ -1,0 +1,2 @@
+from AiresInpFunctions import CreateAiresZernikeQuadInp
+CreateAiresZernikeQuadInp(77.35,0.0,0.0,0.0,cone_vertex=47192.0,cone_ang=2.01,nmax=20,mmax=4,az_B=0.0,zen_B=150.79,projection="conical",RandomFraction=0.1)

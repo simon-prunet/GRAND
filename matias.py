@@ -21,52 +21,53 @@ class Starshape:
         self.simu_path = simu_path
         self.normalized_coordinates_path = normalized_coordinates_path
 
-        InputFilename = simu_path
+        self.InputFilename = simu_path
 
         self.EventNumber = 0 # Only one simulation here
         #Run info
-        self.RunInfo = hdf5io.GetRunInfo(InputFilename)
+        self.RunInfo = hdf5io.GetRunInfo(self.InputFilename)
         print("#RunInfo --> ", self.RunInfo)
-        self.EventName = hdf5io.GetEventName(RunInfo,EventNumber)
+        self.EventName = hdf5io.GetEventName(self.RunInfo,self.EventNumber)
         print("#EventName --> ", self.EventName)
 
         #Shower parameters
-        self.Zenith = hdf5io.GetEventZenith(RunInfo,EventNumber)
+        self.Zenith = hdf5io.GetEventZenith(self.RunInfo,self.EventNumber)
         print("#Zenith --> ", self.Zenith)
         #Azimuth = hdf5io.GetEventAzimuth(RunInfo,EventNumber)
         #print("#Azimuth --> ", Azimuth)
-        self.XmaxDistance = hdf5io.GetEventXmaxDistance(RunInfo,EventNumber)
+        self.XmaxDistance = hdf5io.GetEventXmaxDistance(self.RunInfo,self.EventNumber)
         print("#XmaxDistance --> ", self.XmaxDistance)
 
         #Antannas info
-        self.AntennaInfo = hdf5io.GetAntennaInfo(InputFilename,EventName)
+        self.AntennaInfo = hdf5io.GetAntennaInfo(self.InputFilename,self.EventName)
         print("#AntennaInfo --> ", self.AntennaInfo)
         self.IDs = self.AntennaInfo['ID'].data
+
         print("#IDs --> ", self.IDs)
 
         #Get filter on IDs name, to get index of antennas in the star shape array
-        ou=[id.startswith('A') for id in IDs]
+        ou=[ide.startswith(b'A') for ide in self.IDs]
 
         #Get X,Y coordinates of all antennas
-        self.X = hdf5io.GetXFromAntennaInfo(AntennaInfo)
-        self.Y = hdf5io.GetYFromAntennaInfo(AntennaInfo)
+        self.X = hdf5io.GetXFromAntennaInfo(self.AntennaInfo)
+        self.Y = hdf5io.GetYFromAntennaInfo(self.AntennaInfo)
         self.na_tot = self.X.size
 
         #Get peak Hilbert time and amplitude
-        self.peaktime, self.peakamplitude = hdf5io.get_peak_time_hilbert_hdf5(InputFilename, antennamax="All",antennamin=0, usetrace="efield", DISPLAY=False)
+        self.peaktime, self.peakamplitude = hdf5io.get_peak_time_hilbert_hdf5(self.InputFilename, antennamax="All",antennamin=0, usetrace="efield", DISPLAY=False)
 
         # Select data from star shape
-        Xref = X[ou]; self.Xref=Xref.data
-        Yref = Y[ou]; self.Yref=Yref.data
+        Xref = self.X[ou]; self.Xref=Xref.data
+        Yref = self.Y[ou]; self.Yref=Yref.data
 
         # Crosscheck antennas
         nou=[not k for k in ou]
-        Xcross = X[nou]; self.Xcross=Xcross.data
-        Ycross = Y[nou]; self.Ycross=Ycross.data
+        Xcross = self.X[nou]; self.Xcross=Xcross.data
+        Ycross = self.Y[nou]; self.Ycross=Ycross.data
 
         # Compute predictions from Zernike models
-        self.peaktimecross = peaktime[nou]
-        self.peakamplitudecross = peakamplitude[nou]
+        self.peaktimecross = self.peaktime[nou]
+        self.peakamplitudecross = self.peakamplitude[nou]
 
         # # Now compute coordinates of antennas reprojected into plane perpendicular to shower axis and passing by origin
         # el_angle = 180.-Zenith
@@ -94,10 +95,10 @@ class Starshape:
         arr = np.loadtxt(normalized_coordinates_path)
         self.Xprojn = arr[:,0]
         self.Yprojn = arr[:,1]
-        self.Xprojrefn = Xprojn[ou]
-        self.Yprojrefn = Yprojn[ou]
-        self.Xprojcrossn = Xprojn[nou]
-        self.Yprojcrossn = Yprojn[nou]
+        self.Xprojrefn = self.Xprojn[ou]
+        self.Yprojrefn = self.Yprojn[ou]
+        self.Xprojcrossn = self.Xprojn[nou]
+        self.Yprojcrossn = self.Yprojn[nou]
 
         # Show scatter plot of ground coordinates of antennas
         fig=plt.figure()
@@ -126,22 +127,22 @@ class Starshape:
 
         # Now extract the Efield traces, and store them per component as an ntime,nantennas vector
         # First get traces for one antenna to determine the number of time bins
-        tmp = hdf5io.GetAntennaEfield(InputFilename,EventName,IDs[0])
+        tmp = hdf5io.GetAntennaEfield(self.InputFilename,self.EventName,self.IDs[0].astype('str'))
         self.ntime = tmp.shape[0]
-        tmp = hdf5io.GetAntennaFilteredVoltage(InputFilename,EventName,IDs[0])
+        tmp = hdf5io.GetAntennaFilteredVoltage(self.InputFilename,self.EventName,self.IDs[0].astype('str'))
         self.ntimeV = tmp.shape[0]
 
         # Efield and time arrays
-        self.Efieldx = np.zeros((ntime,na_tot))
-        self.Efieldy = np.zeros((ntime,na_tot))
-        self.Efieldz = np.zeros((ntime,na_tot))
-        self.time    = np.zeros((ntime,na_tot))
+        self.Efieldx = np.zeros((self.ntime,self.na_tot))
+        self.Efieldy = np.zeros((self.ntime,self.na_tot))
+        self.Efieldz = np.zeros((self.ntime,self.na_tot))
+        self.time    = np.zeros((self.ntime,self.na_tot))
 
         # Voltage and time arrays
-        self.Voltagex = np.zeros((ntimeV,na_tot))
-        self.Voltagey = np.zeros((ntimeV,na_tot))
-        self.Voltagez = np.zeros((ntimeV,na_tot))
-        self.timeV    = np.zeros((ntimeV,na_tot))
+        self.Voltagex = np.zeros((self.ntimeV,self.na_tot))
+        self.Voltagey = np.zeros((self.ntimeV,self.na_tot))
+        self.Voltagez = np.zeros((self.ntimeV,self.na_tot))
+        self.timeV    = np.zeros((self.ntimeV,self.na_tot))
 
         # Displacement vectors
         #self.Efieldx_dt = np.zeros(na_tot)
@@ -151,13 +152,13 @@ class Starshape:
         for i in range(self.na_tot):
 
             # E field
-            trace = hdf5io.GetAntennaEfield(InputFilename,EventName,IDs[i])
+            trace = hdf5io.GetAntennaEfield(self.InputFilename,self.EventName,self.IDs[i].astype('str'))
             self.time[:,i] = trace[:,0]
             self.Efieldx[:,i] = trace[:,1]
             self.Efieldy[:,i] = trace[:,2]
             self.Efieldz[:,i] = trace[:,3]
             # Antenna voltages
-            traceV = hdf5io.GetAntennaFilteredVoltage(InputFilename,EventName,IDs[i])
+            traceV = hdf5io.GetAntennaFilteredVoltage(self.InputFilename,self.EventName,self.IDs[i].astype('str'))
             self.timeV[:,i]    = traceV[:,0]
             self.Voltagex[:,i] = traceV[:,1]
             self.Voltagey[:,i] = traceV[:,2]
@@ -243,6 +244,7 @@ class Starshape:
         return imax * step
 
     def TimeInterpolateTraces(self,tmin,tmax,nmax=20,mmax=3,regul=0):
+    	#### NEEDS REVISION
         js = zernike.compute_j_list(nmax,mmax)
         ncoeff = len(js)
         Efieldx_coeffs = np.zeros((ntime,ncoeff))
@@ -327,43 +329,146 @@ class Starshape:
 
 
         # Same for phase
-        FFT_Voltagex_ref_phi_coeffs = np.zeros((nsampV,ncoeff_phi))
-        FFT_Voltagey_ref_phi_coeffs = np.zeros((nsampV,ncoeff_phi))
-        FFT_Voltagez_ref_phi_coeffs = np.zeros((nsampV,ncoeff_phi))
+        self.FFT_Voltagex_ref_phi_coeffs = np.zeros((self.nsampV,self.ncoeff_phi))
+        self.FFT_Voltagey_ref_phi_coeffs = np.zeros((self.nsampV,self.ncoeff_phi))
+        self.FFT_Voltagez_ref_phi_coeffs = np.zeros((self.nsampV,self.ncoeff_phi))
 
         # For all valid (positive) frequencies, compute Zernike coefficients for amplitude and phase
         # Amplitude
-        for i in np.arange(indmin,indmax):
-            print("Processing amplitude, frequency bin {0:d}\n",format(i))
-            if (i==0 or i==nsampV/2): # Zero mode and Nyquist are real
-                FFT_Voltagex_ref_amp_coeffs[i,:] = zernike.compute_zernike_coeffs(FFT_Voltagex_ref[i,:],Xprojrefn,Yprojrefn,js_amp,regul=regul_amp)
-                FFT_Voltagey_ref_amp_coeffs[i,:] = zernike.compute_zernike_coeffs(FFT_Voltagey_ref[i,:],Xprojrefn,Yprojrefn,js_amp,regul=regul_amp)
-                FFT_Voltagez_ref_amp_coeffs[i,:] = zernike.compute_zernike_coeffs(FFT_Voltagez_ref[i,:],Xprojrefn,Yprojrefn,js_amp,regul=regul_amp)
+        for i in np.arange(self.indmin,self.indmax):
+            print("Processing amplitude, frequency bin {0:d}\n".format(i))
+            if (i==0 or i==self.nsampV/2): # Zero mode and Nyquist are real
+                self.FFT_Voltagex_ref_amp_coeffs[i,:] = zernike.compute_zernike_coeffs(self.FFT_Voltagex_ref[i,:],self.Xprojrefn,self.Yprojrefn,self.js_amp,regul=regul_amp)
+                self.FFT_Voltagey_ref_amp_coeffs[i,:] = zernike.compute_zernike_coeffs(self.FFT_Voltagey_ref[i,:],self.Xprojrefn,self.Yprojrefn,self.js_amp,regul=regul_amp)
+                self.FFT_Voltagez_ref_amp_coeffs[i,:] = zernike.compute_zernike_coeffs(self.FFT_Voltagez_ref[i,:],self.Xprojrefn,self.Yprojrefn,js_amp,regul=regul_amp)
             else:
-                FFT_Voltagex_ref_amp_coeffs[i,:] = zernike.compute_zernike_coeffs(np.abs(FFT_Voltagex_ref[i,:]),Xprojrefn,Yprojrefn,js_amp,regul=regul_amp)
-                FFT_Voltagey_ref_amp_coeffs[i,:] = zernike.compute_zernike_coeffs(np.abs(FFT_Voltagey_ref[i,:]),Xprojrefn,Yprojrefn,js_amp,regul=regul_amp)
-                FFT_Voltagez_ref_amp_coeffs[i,:] = zernike.compute_zernike_coeffs(np.abs(FFT_Voltagez_ref[i,:]),Xprojrefn,Yprojrefn,js_amp,regul=regul_amp)
+                self.FFT_Voltagex_ref_amp_coeffs[i,:] = zernike.compute_zernike_coeffs(np.abs(self.FFT_Voltagex_ref[i,:]),self.Xprojrefn,self.Yprojrefn,self.js_amp,regul=regul_amp)
+                self.FFT_Voltagey_ref_amp_coeffs[i,:] = zernike.compute_zernike_coeffs(np.abs(self.FFT_Voltagey_ref[i,:]),self.Xprojrefn,self.Yprojrefn,self.js_amp,regul=regul_amp)
+                self.FFT_Voltagez_ref_amp_coeffs[i,:] = zernike.compute_zernike_coeffs(np.abs(self.FFT_Voltagez_ref[i,:]),self.Xprojrefn,self.Yprojrefn,self.js_amp,regul=regul_amp)
             # Copy over negative frequencies
-            if (i>0 and i<nsampV/2):
-                FFT_Voltagex_ref_amp_coeffs[-i,:] = FFT_Voltagex_ref_amp_coeffs[i,:]
-                FFT_Voltagey_ref_amp_coeffs[-i,:] = FFT_Voltagey_ref_amp_coeffs[i,:]
-                FFT_Voltagez_ref_amp_coeffs[-i,:] = FFT_Voltagez_ref_amp_coeffs[i,:]
+            if (i>0 and i<self.nsampV/2):
+                self.FFT_Voltagex_ref_amp_coeffs[-i,:] = self.FFT_Voltagex_ref_amp_coeffs[i,:]
+                self.FFT_Voltagey_ref_amp_coeffs[-i,:] = self.FFT_Voltagey_ref_amp_coeffs[i,:]
+                self.FFT_Voltagez_ref_amp_coeffs[-i,:] = self.FFT_Voltagez_ref_amp_coeffs[i,:]
 
         # Phase. Use weighting scheme in fit according to amplitude (phase gets bogus when amplitude is too low at large radii)
-        for i in np.arange(indmin,indmax):
+        for i in np.arange(self.indmin,self.indmax):
             print("Processing phase, frequency bin {0:d}\n".format(i))
-            if (i>0 and i<nsampV/2):
-                FFT_Voltagex_ref_phi_coeffs[i,:] = zernike.compute_zernike_coeffs(np.unwrap(np.angle(FFT_Voltagex_ref[i,:])),Xprojrefn,Yprojrefn,js_phi,weights=np.abs(FFT_Voltagex_ref[i,:]))
-                FFT_Voltagey_ref_phi_coeffs[i,:] = zernike.compute_zernike_coeffs(np.unwrap(np.angle(FFT_Voltagey_ref[i,:])),Xprojrefn,Yprojrefn,js_phi,weights=np.abs(FFT_Voltagey_ref[i,:]))
-                FFT_Voltagez_ref_phi_coeffs[i,:] = zernike.compute_zernike_coeffs(np.unwrap(np.angle(FFT_Voltagez_ref[i,:])),Xprojrefn,Yprojrefn,js_phi,weights=np.abs(FFT_Voltagez_ref[i,:]))
+            if (i>0 and i<self.nsampV/2):
+                self.FFT_Voltagex_ref_phi_coeffs[i,:] = zernike.compute_zernike_coeffs(np.unwrap(np.angle(self.FFT_Voltagex_ref[i,:])),self.Xprojrefn,self.Yprojrefn,self.js_phi,weights=np.abs(self.FFT_Voltagex_ref[i,:]))
+                self.FFT_Voltagey_ref_phi_coeffs[i,:] = zernike.compute_zernike_coeffs(np.unwrap(np.angle(self.FFT_Voltagey_ref[i,:])),self.Xprojrefn,self.Yprojrefn,self.js_phi,weights=np.abs(self.FFT_Voltagey_ref[i,:]))
+                self.FFT_Voltagez_ref_phi_coeffs[i,:] = zernike.compute_zernike_coeffs(np.unwrap(np.angle(self.FFT_Voltagez_ref[i,:])),self.Xprojrefn,self.Yprojrefn,self.js_phi,weights=np.abs(self.FFT_Voltagez_ref[i,:]))
                 # Copy over negative frequencies. Phase gets a minus sign so that the Fourier coefficient gets complex conjugated.
-                FFT_Voltagex_ref_phi_coeffs[-i,:] = -FFT_Voltagex_ref_phi_coeffs[i,:]
-                FFT_Voltagey_ref_phi_coeffs[-i,:] = -FFT_Voltagey_ref_phi_coeffs[i,:]
-                FFT_Voltagez_ref_phi_coeffs[-i,:] = -FFT_Voltagez_ref_phi_coeffs[i,:]
+                self.FFT_Voltagex_ref_phi_coeffs[-i,:] = -self.FFT_Voltagex_ref_phi_coeffs[i,:]
+                self.FFT_Voltagey_ref_phi_coeffs[-i,:] = -self.FFT_Voltagey_ref_phi_coeffs[i,:]
+                self.FFT_Voltagez_ref_phi_coeffs[-i,:] = -self.FFT_Voltagez_ref_phi_coeffs[i,:]
 
-        return (FFT_Voltagex_ref,FFT_Voltagey_ref,FFT_Voltagez_ref,FFT_Voltagex_ref_amp_coeffs,FFT_Voltagey_ref_amp_coeffs,FFT_Voltagez_ref_amp_coeffs,FFT_Voltagex_ref_phi_coeffs,FFT_Voltagey_ref_phi_coeffs,FFT_Voltagez_ref_phi_coeffs)
+        return
 
-    
+    def FourierInterpolateTraces(self,x,y,do_cross=True):
+        '''
+        Once PrepareFourierInterpolateTraces has been called, this will take two vectors of x,y normalized coordinates as input
+        and interpolate amplitude and phase of Fourier coefficients in the bandpass at these positions.
+        Then, Invers Fourier transforming will give access to the interpolated traces
+        '''
+        self.target_x = x.copy()
+        self.target_y = y.copy()
+        self.ntargets = x.size
+    	
+        self.FFT_Voltagex_interp_amp = np.zeros((self.nsampV,self.ntargets))
+        self.FFT_Voltagey_interp_amp = np.zeros((self.nsampV,self.ntargets))
+        self.FFT_Voltagez_interp_amp = np.zeros((self.nsampV,self.ntargets))
+
+        if (do_cross):
+            self.FFT_Voltagex_interp_cross_amp = np.zeros((self.nsampV,self.na_cross))
+            self.FFT_Voltagey_interp_cross_amp = np.zeros((self.nsampV,self.na_cross))
+            self.FFT_Voltagez_interp_cross_amp = np.zeros((self.nsampV,self.na_cross))
+    	
+        self.FFT_Voltagex_interp_phi = np.zeros((self.nsampV,self.ntargets))
+        self.FFT_Voltagey_interp_phi = np.zeros((self.nsampV,self.ntargets))
+        self.FFT_Voltagez_interp_phi = np.zeros((self.nsampV,self.ntargets))
+
+        if (do_cross):
+            self.FFT_Voltagex_interp_cross_phi = np.zeros((self.nsampV,self.na_cross))
+            self.FFT_Voltagey_interp_cross_phi = np.zeros((self.nsampV,self.na_cross))
+            self.FFT_Voltagez_interp_cross_phi = np.zeros((self.nsampV,self.na_cross))
+
+        self.FFT_Voltagex_interp     = np.zeros((self.nsampV,self.ntargets),dtype=np.complex128)
+        self.FFT_Voltagex_interp     = np.zeros((self.nsampV,self.ntargets),dtype=np.complex128)
+        self.FFT_Voltagez_interp     = np.zeros((self.nsampV,self.ntargets),dtype=np.complex128)
+        self.Voltagex_interp         = np.zeros((self.nsampV,self.ntargets),dtype=np.complex128)
+        self.Voltagey_interp         = np.zeros((self.nsampV,self.ntargets),dtype=np.complex128)
+        self.Voltagez_interp         = np.zeros((self.nsampV,self.ntargets),dtype=np.complex128)
+
+        if (do_cross):
+            self.FFT_Voltagex_interp_cross = np.zeros((self.nsampV,self.na_cross),dtype=np.complex128)
+            self.FFT_Voltagey_interp_cross = np.zeros((self.nsampV,self.na_cross),dtype=np.complex128)
+            self.FFT_Voltagez_interp_cross = np.zeros((self.nsampV,self.na_cross),dtype=np.complex128)
+            self.Voltagex_interp_cross     = np.zeros((self.nsampV,self.na_cross),dtype=np.complex128)
+            self.Voltagey_interp_cross     = np.zeros((self.nsampV,self.na_cross),dtype=np.complex128)
+            self.Voltagez_interp_cross     = np.zeros((self.nsampV,self.na_cross),dtype=np.complex128)
+
+        for i in np.arange(self.indmin,self.indmax):
+            print("Processing amplitude, frequency bin {0:d}\n".format(i))
+            self.FFT_Voltagex_interp_amp[i,:] = zernike.zernike_array_noll(self.FFT_Voltagex_ref_amp_coeffs[i,:],self.target_x,self.target_y,self.js_amp)
+            self.FFT_Voltagey_interp_amp[i,:] = zernike.zernike_array_noll(self.FFT_Voltagey_ref_amp_coeffs[i,:],self.target_x,self.target_y,self.js_amp)
+            self.FFT_Voltagez_interp_amp[i,:] = zernike.zernike_array_noll(self.FFT_Voltagez_ref_amp_coeffs[i,:],self.target_x,self.target_y,self.js_amp)
+            if (i>0 and i<self.nsampV/2):
+                self.FFT_Voltagex_interp_amp[-i,:] = self.FFT_Voltagex_interp_amp[i,:]
+                self.FFT_Voltagey_interp_amp[-i,:] = self.FFT_Voltagey_interp_amp[i,:]
+                self.FFT_Voltagez_interp_amp[-i,:] = self.FFT_Voltagez_interp_amp[i,:]
+
+            if (do_cross):
+                self.FFT_Voltagex_interp_cross_amp[i,:] = zernike.zernike_array_noll(self.FFT_Voltagex_ref_amp_coeffs[i,:],self.Xprojcrossn,self.Yprojcrossn,self.js_amp)
+                self.FFT_Voltagey_interp_cross_amp[i,:] = zernike.zernike_array_noll(self.FFT_Voltagey_ref_amp_coeffs[i,:],self.Xprojcrossn,self.Yprojcrossn,self.js_amp)
+                self.FFT_Voltagez_interp_cross_amp[i,:] = zernike.zernike_array_noll(self.FFT_Voltagez_ref_amp_coeffs[i,:],self.Xprojcrossn,self.Yprojcrossn,self.js_amp)
+                if (i>0 and i<self.nsampV/2):
+                    self.FFT_Voltagex_interp_cross_amp[-i,:] = self.FFT_Voltagex_interp_cross_amp[i,:]
+                    self.FFT_Voltagey_interp_cross_amp[-i,:] = self.FFT_Voltagey_interp_cross_amp[i,:]
+                    self.FFT_Voltagez_interp_cross_amp[-i,:] = self.FFT_Voltagez_interp_cross_amp[i,:]
+
+        # Phase. Only relevant outside of mode zero and Nyquist
+        for i in np.arange(self.indmin,self.indmax):
+            print("Processing phase, frequency bin {0:d}\n".format(i))
+            if (i>0 and i<self.nsampV/2):
+                self.FFT_Voltagex_interp_phi[i,:] = zernike.zernike_array_noll(self.FFT_Voltagex_ref_phi_coeffs[i,:],self.target_x,self.target_y,self.js_phi)
+                self.FFT_Voltagey_interp_phi[i,:] = zernike.zernike_array_noll(self.FFT_Voltagey_ref_phi_coeffs[i,:],self.target_x,self.target_y,self.js_phi)
+                self.FFT_Voltagez_interp_phi[i,:] = zernike.zernike_array_noll(self.FFT_Voltagez_ref_phi_coeffs[i,:],self.target_x,self.target_y,self.js_phi)
+                # Ensure real inverse Fourier Transform
+                self.FFT_Voltagex_interp_phi[-i,:] = -self.FFT_Voltagex_interp_phi[i,:]
+                self.FFT_Voltagey_interp_phi[-i,:] = -self.FFT_Voltagey_interp_phi[i,:]
+                self.FFT_Voltagez_interp_phi[-i,:] = -self.FFT_Voltagez_interp_phi[i,:]
+
+                if (do_cross):
+                    self.FFT_Voltagex_interp_cross_phi[i,:] = zernike.zernike_array_noll(self.FFT_Voltagex_ref_phi_coeffs[i,:],self.Xprojcrossn,self.Yprojcrossn,self.js_phi)
+                    self.FFT_Voltagex_interp_cross_phi[i,:] = zernike.zernike_array_noll(self.FFT_Voltagex_ref_phi_coeffs[i,:],self.Xprojcrossn,self.Yprojcrossn,self.js_phi)
+                    self.FFT_Voltagex_interp_cross_phi[i,:] = zernike.zernike_array_noll(self.FFT_Voltagex_ref_phi_coeffs[i,:],self.Xprojcrossn,self.Yprojcrossn,self.js_phi)
+                    # Ensure real inverse Fourier Transform
+                    self.FFT_Voltagex_interp_cross_phi[-i,:] = -self.FFT_Voltagex_interp_cross_phi[i,:]
+                    self.FFT_Voltagey_interp_cross_phi[-i,:] = -self.FFT_Voltagey_interp_cross_phi[i,:]
+                    self.FFT_Voltagez_interp_cross_phi[-i,:] = -self.FFT_Voltagez_interp_cross_phi[i,:]
+
+        self.FFT_Voltagex_interp = self.FFT_Voltagex_interp_amp * np.exp(1j * self.FFT_Voltagex_interp_phi)
+        self.FFT_Voltagey_interp = self.FFT_Voltagey_interp_amp * np.exp(1j * self.FFT_Voltagey_interp_phi)
+        self.FFT_Voltagez_interp = self.FFT_Voltagez_interp_amp * np.exp(1j * self.FFT_Voltagez_interp_phi)
+
+        if (do_cross):
+            self.FFT_Voltagex_interp_cross = self.FFT_Voltagex_interp_cross_amp * np.exp(1j * self.FFT_Voltagex_interp_cross_phi)
+            self.FFT_Voltagey_interp_cross = self.FFT_Voltagey_interp_cross_amp * np.exp(1j * self.FFT_Voltagey_interp_cross_phi)
+            self.FFT_Voltagez_interp_cross = self.FFT_Voltagez_interp_cross_amp * np.exp(1j * self.FFT_Voltagez_interp_cross_phi)
+
+        for i in np.arange(self.ntargets):
+            self.Voltagex_interp[:,i] = np.fft.ifft(self.FFT_Voltagex_interp[:,i])
+            self.Voltagey_interp[:,i] = np.fft.ifft(self.FFT_Voltagey_interp[:,i])
+            self.Voltagez_interp[:,i] = np.fft.ifft(self.FFT_Voltagez_interp[:,i])
+
+        if (do_cross):
+            for i in np.arange(self.na_cross):
+                self.Voltagex_interp_cross[:,i] = np.fft.ifft(self.FFT_Voltagex_interp_cross[:,i])    
+                self.Voltagey_interp_cross[:,i] = np.fft.ifft(self.FFT_Voltagey_interp_cross[:,i])
+                self.Voltagez_interp_cross[:,i] = np.fft.ifft(self.FFT_Voltagez_interp_cross[:,i])
+
+
     # for ifreq in range(indmin,indmax):
     #    FFT_Voltagey_amp_coeffs[ifreq,:] = zernike.compute_zernike_coeffs(np.abs(FFT_Voltagey[ifreq,:na_ref]),Xprojrefn,Yprojrefn,js,regul=regul)
 

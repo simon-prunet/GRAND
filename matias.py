@@ -11,7 +11,7 @@ import numpy as np
 
 class Starshape:
 
-    def __init__(self,simu_path='/Users/prunet/Documents/Code/GRAND/Starshape-Zernike/Stshp_Proton_3.98_77.4_0.0_1.hdf5',normalized_coordinates_path='/Users/prunet/Documents/Code/GRAND/Starshape-Zernike/TestInput.inpnorm'):
+    def __init__(self,simu_path='/Users/prunet/Documents/Code/GRAND/GRAND/Starshape-Zernike/Stshp_Proton_3.98_77.4_0.0_1.hdf5',normalized_coordinates_path='/Users/prunet/Documents/Code/GRAND/GRAND/Starshape-Zernike/TestInput.inpnorm'):
 
 
         # Reference sample
@@ -174,11 +174,12 @@ class Starshape:
             # Efieldx[:,i] = TranslateTrace(Efieldx[:,i],-peaktime[i]+time[ref_sample,i])
             # Efieldy[:,i] = TranslateTrace(Efieldy[:,i],-peaktime[i]+time[ref_sample,i])
             # Efieldz[:,i] = TranslateTrace(Efieldz[:,i],-peaktime[i]+time[ref_sample,i])
-            self.Voltagex[:,i] = self.TranslateTrace(self.Voltagex[:,i],-self.peaktime[i]+self.timeV[self.ref_sample,i])
-            self.Voltagey[:,i] = self.TranslateTrace(self.Voltagey[:,i],-self.peaktime[i]+self.timeV[self.ref_sample,i])
-            self.Voltagez[:,i] = self.TranslateTrace(self.Voltagez[:,i],-self.peaktime[i]+self.timeV[self.ref_sample,i])
-            #Voltagey[:,i] = TranslateTrace(Voltagey[:,i],-peaktime[i]+timeV[ref_sample,i])
 
+            ## REMOVE voltage trace translation for now. Investigating phase spatial smoothness
+            ## self.Voltagex[:,i] = self.TranslateTrace(self.Voltagex[:,i],-self.peaktime[i]+self.timeV[self.ref_sample,i])
+            ## self.Voltagey[:,i] = self.TranslateTrace(self.Voltagey[:,i],-self.peaktime[i]+self.timeV[self.ref_sample,i])
+            ## self.Voltagez[:,i] = self.TranslateTrace(self.Voltagez[:,i],-self.peaktime[i]+self.timeV[self.ref_sample,i])
+            
 
         self.Efieldx_ref = self.Efieldx[:,ou]
         self.Efieldy_ref = self.Efieldy[:,ou]
@@ -266,7 +267,7 @@ class Starshape:
             fitted_Efieldy_cross[t,:] = zernike.zernike_array_noll(Efieldy_coeffs[t,:],Xprojcrossn,Yprojcrossn,js)
         return fitted_Efieldy_ref, fitted_Efieldy_cross
 
-    def PrepareFourierInterpolateTraces(self,bandpass=None,nmax_amp=20,nmax_phi=3,mmax_amp=4,mmax_phi=3,regul_amp=0.,step=0.5):
+    def PrepareFourierInterpolateTraces(self,bandpass=None,nmax_amp=20,nmax_phi=20,mmax_amp=4,mmax_phi=4,regul_amp=0.,step=0.5):
         '''
         This routine computes modulus and phase of FFT of traces for all antennas, 
         then do a 2D interpolation of both modulus and phase to predict FFT of trace at 
@@ -340,7 +341,7 @@ class Starshape:
             if (i==0 or i==self.nsampV/2): # Zero mode and Nyquist are real
                 self.FFT_Voltagex_ref_amp_coeffs[i,:] = zernike.compute_zernike_coeffs(self.FFT_Voltagex_ref[i,:],self.Xprojrefn,self.Yprojrefn,self.js_amp,regul=regul_amp)
                 self.FFT_Voltagey_ref_amp_coeffs[i,:] = zernike.compute_zernike_coeffs(self.FFT_Voltagey_ref[i,:],self.Xprojrefn,self.Yprojrefn,self.js_amp,regul=regul_amp)
-                self.FFT_Voltagez_ref_amp_coeffs[i,:] = zernike.compute_zernike_coeffs(self.FFT_Voltagez_ref[i,:],self.Xprojrefn,self.Yprojrefn,js_amp,regul=regul_amp)
+                self.FFT_Voltagez_ref_amp_coeffs[i,:] = zernike.compute_zernike_coeffs(self.FFT_Voltagez_ref[i,:],self.Xprojrefn,self.Yprojrefn,self.js_amp,regul=regul_amp)
             else:
                 self.FFT_Voltagex_ref_amp_coeffs[i,:] = zernike.compute_zernike_coeffs(np.abs(self.FFT_Voltagex_ref[i,:]),self.Xprojrefn,self.Yprojrefn,self.js_amp,regul=regul_amp)
                 self.FFT_Voltagey_ref_amp_coeffs[i,:] = zernike.compute_zernike_coeffs(np.abs(self.FFT_Voltagey_ref[i,:]),self.Xprojrefn,self.Yprojrefn,self.js_amp,regul=regul_amp)

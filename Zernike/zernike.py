@@ -1,6 +1,6 @@
 import aotools
 import numpy as np
-from solver import *
+from .solver import *
 
 def zernike_noll(j,X,Y):
 

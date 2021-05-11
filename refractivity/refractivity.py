@@ -116,6 +116,10 @@ def s(h,zen):
     s = -R_earth*np.cos(zen) + np.sqrt(h**2 + 2*h*R_earth + np.cos(zen)**2 * R_earth**2)
     return s
 
+def h(s,zen):
+    h = -R_earth + np.sqrt(s**2 + R_earth**2 + 2*R_earth*s*np.cos(zen))
+    return h
+
 def exact_integral(zendeg,hx):
 
     zen = np.deg2rad(zendeg)
@@ -184,12 +188,12 @@ def steep_approx(zendeg,hx):
     EHK = np.exp(HK)
     EMHK = 1./EHK
 
+
     t1 = 8.*KR3*(-1.-HK-KR + EHK*(1.+KR))*SB
     t3 = 4.*KR* ( 6.+HK3+3.*HK2*(1+KR) + 2.*KR*(3.+KR) - 2.*EHK*(3.+KR*(3.+KR)) + 2.*HK*(3.+KR*(3.+KR)))*SB3
     t5 = 3.*(-5.*(24.+HK*(24.+HK*(12.+HK*(4.+HK)))) - 8.*(6.+HK*(6.+HK*(3.+HK)))*KR - 4.*(2.+HK*(2.+HK))*KR2 + 8.*EHK*(15.+KR*(6+KR)))*SB5
     t7 = 10.*(5.*(24.+HK*(24.+HK*(12.+HK*(4.+HK)))) + 2.*(6.+HK*(6.+HK*(3.+HK)))*KR - 12.*EHK*(10.+KR))*SB7
     t9 = 35.*(-24.+24.*EHK - HK*(24.+HK*(12.+HK*(4.+HK))))*SB9
-
     res = Rs*EMHK/(8.*k*KR4)*(t1+t3+t5+t7+t9)
     return res
 
@@ -201,7 +205,10 @@ def test_approxes(zendegmin=0.01,zendegmax=89.99,hxmin=1.,hxmax=50.,erfc_functio
     of zendeg, hx
     '''
 
-    zendeg,hx = np.meshgrid(np.linspace(zendegmin,zendegmax,101),np.linspace(hxmin,hxmax,101))
+    #zendeg,hx = np.meshgrid(np.linspace(zendegmin,zendegmax,101),np.linspace(hxmin,hxmax,101))
+    z = (90.-np.logspace(np.log10(zendegmin),np.log10(zendegmax),101))[::-1]
+    h = np.linspace(hxmin,hxmax,101)
+    zendeg,hx = np.meshgrid(z,h)
     error_inclined = np.zeros((101,101))
     error_steep = np.zeros((101,101))
     exact = np.zeros((101,101))

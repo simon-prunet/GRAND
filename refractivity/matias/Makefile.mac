@@ -1,0 +1,21 @@
+# This assumes the following command has been executed:
+# module load intel
+
+FC = gfortran
+FFLAGS = -O4
+
+OBJS = smart.o testsmart.o
+
+
+all:	testsmart
+
+testsmart:	$(OBJS)
+	$(FC) $(FFLAGS) -o $@ $(OBJS)
+clean:
+	rm -rf $(OBJS) testsmart
+
+%.o:	%.f90
+	$(FC) $(FFLAGS) -c $< -o $@
+%.o:	%.f
+	$(FC) $(FFLAGS) -c $< -o $@
+

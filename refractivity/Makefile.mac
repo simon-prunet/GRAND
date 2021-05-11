@@ -1,0 +1,20 @@
+# This assumes the following command has been executed:
+# module load intel
+
+FC = gfortran
+FFLAGS = -ffree-line-length-1024 -O4  #-profile-functions -profile-loops=all -profile-loops-report=2
+
+OBJS = fadeeva.o refractivity.o integrate.o
+MODS = fadeeva.mod refractivity.mod
+
+
+all:	integrate
+
+integrate:	$(OBJS) $(MODS)
+	$(FC) $(FFLAGS) -o $@ $(OBJS)
+clean:
+	rm -rf $(OBJS) $(MODS) integrate
+
+%.o:	%.f90
+	$(FC) $(FFLAGS) -c $< -o $@
+

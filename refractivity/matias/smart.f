@@ -88,8 +88,8 @@ c
 c
 c     Determine number of steps
 c      
-      nint=(dr1r2/20000)+1      
-c      write(*,*) "nint = ",nint
+      nint=(dr1r2/20000)+1
+c     write(*,*) "nint = ",nint
       ds=1.0/nint
 c
 c     Get altitude of starting point

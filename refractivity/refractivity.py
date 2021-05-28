@@ -25,7 +25,7 @@ def compute_cos_zenith(xa,xb):
     xab = xb-xa
     nxab = norm(xab)
     nxa  = norm(xa)
-    coszen = (xa[0]*xa[0]+xab[1]*xa[1]+xab[2]*xa[2])/(nxab*nxa)
+    coszen = (xab[0]*xa[0]+xab[1]*xa[1]+xab[2]*xa[2])/(nxab*nxa)
 
     return coszen
 
@@ -96,6 +96,7 @@ def approximate_refractivity_integral(xa,xb):
     Same as before, but dsdh exact formula is Taylor expanded to second order in h/R
     where R is the effective radius (||OA||) and h is the altitude w.r.t. point A
     '''
+
     coszen, R, hB = compute_geometry(xa,xb)
     dh = R - R_earth
     prefactor = np.exp(-k*dh)
@@ -110,34 +111,74 @@ def approximate_refractivity_integral(xa,xb):
 
 ######################################################################
 # Different approximations as a function of zendeg (degree), hx (km) #
+# Beware that here we assume point A is on the earth surface.        #
 ######################################################################
 
-def s(h,zen):
-    s = -R_earth*np.cos(zen) + np.sqrt(h**2 + 2*h*R_earth + np.cos(zen)**2 * R_earth**2)
+def s(h,R,coszen):
+    s = -R*coszen + np.sqrt(h**2 + 2*h*R + coszen**2 * R**2)
     return s
 
-def h(s,zen):
-    h = -R_earth + np.sqrt(s**2 + R_earth**2 + 2*R_earth*s*np.cos(zen))
+def h(s,R,coszen):
+    h = -R + np.sqrt(s**2 + R**2 + 2*R*s*coszen)
     return h
 
-def exact_integral(zendeg,hx):
+def exact_integral(coszen,hx,mean_index=False):
 
-    zen = np.deg2rad(zendeg)
-    sx = s(hx,zen)
+    sx = s(hx,R_earth,coszen)
     def integrand(s):
-        h = -R_earth + np.sqrt(R_earth**2+s**2+2*R_earth*s*np.cos(zen))
-        return np.exp(-k*h)
+        hh = h(s,R_earth,coszen)
+        return np.exp(-k*hh)
 
     res = Rs * si.quad(integrand,0,sx)[0]
+    if (mean_index):
+        res = 1.0 + 1e-6*res/sx
     return(res)
 
-def inclined_approx(zendeg,hx,erfc=erfc):
+# Case where antenna is not at ground level
+def compute_misc(xA,xB):
+    
+    # Compute coordinates at earth center
+    xA_earth = xA.copy()
+    xB_earth = xB.copy()
+    xA_earth[2] += R_earth
+    xB_earth[2] += R_earth
+    # Compute Intersection of AB segment with earth surface: point G
+    xAB = xB-xA
+    nxAB = norm(xAB)
+    nxAAB = np.dot(xA_earth,xAB)
+    nxA_earth = norm(xA_earth)
+    nxB_earth = norm(xB_earth)
+
+    l = (-nxAAB + np.sqrt(nxAAB**2 - nxAB**2*(nxA_earth**2-R_earth**2)))/nxAB**2
+    xG_earth = xA_earth + l*xAB
+    coszeng = np.dot(xG_earth,xAB)/(R_earth*nxAB)
+    hA = nxA_earth - R_earth
+    hB = nxB_earth - R_earth
+    return (xG_earth,coszeng,hA,hB)
+
+def exact_integral_coords(xB,mean_index=False):
+    # Assumes point A coordinates are (0,0,R_earth)
+    # Point B coordinates origin are at ground level. We need it at earth center
+    xB_earth = xB.copy()
+    xB_earth[2] += R_earth
+
+    coszen, R, hB = compute_geometry(np.array([0.,0.,R_earth]),xB_earth)
+    sB = s(hB,R,coszen)
+    def integrand(s):
+        hh = h(s,R_earth,coszen)
+        return np.exp(-k*hh)
+
+    res = Rs*si.quad(integrand,0,sB)[0]
+    if (mean_index):
+        res = 1.0 + 1e-6*res/sB
+    return (res)
+
+def inclined_approx(coszen,hx,erfc=erfc):
 
     ''' 
     For use with 5<zendeg<89.99 degrees
     '''
-    zen = np.deg2rad(zendeg)
-    sx = s(hx,zen)
+    sx = s(hx,R_earth,coszen)
 
     def beta0(w):
         res = np.cosh(w)/np.sinh(w)-0.5/np.sinh(w/2.)
@@ -157,20 +198,20 @@ def inclined_approx(zendeg,hx,erfc=erfc):
         return smallw+largew
     
     u = k*R_earth
-    z = u*np.sin(zen)
-    w1 = np.arcsinh(np.cos(zen)/np.sin(zen))
-    w2 = np.arcsinh( (sx + R_earth*np.cos(zen))/(R_earth*np.sin(zen)) )
-    return Rs *(R_earth*np.sin(zen)) *( IK1(u,z,w1) - IK1(u,z,w2))
+    sinzen = np.sqrt(1-coszen**2)
+    z = u*sinzen
+    w1 = np.arcsinh(coszen/sinzen)
+    w2 = np.arcsinh( (sx + R_earth*coszen)/(R_earth*sinzen) )
+    return Rs *(R_earth*sinzen) *( IK1(u,z,w1) - IK1(u,z,w2))
 
 
-def steep_approx(zendeg,hx):
+def steep_approx(coszen,hx):
 
     '''
     Based on 4th order Taylor expansion of ds/dh in terms of h/(R cos(zen)).
     For use with 0<=zendeg<70 deg.
     '''
-    zen=np.deg2rad(zendeg)
-    SB = 1./np.cos(zen)
+    SB = 1./coszen
     SB2 = SB**2
     SB3 = SB2*SB
     SB5 = SB3*SB2
@@ -198,7 +239,7 @@ def steep_approx(zendeg,hx):
     return res
 
 
-def test_approxes(zendegmin=0.01,zendegmax=89.99,hxmin=1.,hxmax=50.,erfc_function=erfc):
+def test_approxes(coszenmin=0.001,coszenmax=0.999,hxmin=1.,hxmax=50.,erfc_function=erfc,nh=51,nz=101):
 
     '''
     Computes relative error to numerical integration on a grid of values
@@ -206,50 +247,59 @@ def test_approxes(zendegmin=0.01,zendegmax=89.99,hxmin=1.,hxmax=50.,erfc_functio
     '''
 
     #zendeg,hx = np.meshgrid(np.linspace(zendegmin,zendegmax,101),np.linspace(hxmin,hxmax,101))
-    z = (90.-np.logspace(np.log10(zendegmin),np.log10(zendegmax),101))[::-1]
-    h = np.linspace(hxmin,hxmax,101)
-    zendeg,hx = np.meshgrid(z,h)
-    error_inclined = np.zeros((101,101))
-    error_steep = np.zeros((101,101))
-    exact = np.zeros((101,101))
+    cz = np.geomspace(coszenmin,coszenmax,nz)
+    hh = np.geomspace(hxmin,hxmax,nh)
+    coszen,hx = np.meshgrid(cz,hh)
+    error_inclined = np.zeros((nh,nz))
+    error_steep = np.zeros((nh,nz))
+    exact = np.zeros((nh,nz))
 
-    for i in range(101):
-        for j in range(101):
-            ex = exact_integral(zendeg[i,j],hx[i,j])
-            steep = steep_approx(zendeg[i,j],hx[i,j])
-            inclined = inclined_approx(zendeg[i,j],hx[i,j],erfc=erfc_function)
+    for i in range(nh):
+        for j in range(nz):
+            ex = exact_integral(coszen[i,j],hx[i,j])
+            steep = steep_approx(coszen[i,j],hx[i,j])
+            inclined = inclined_approx(coszen[i,j],hx[i,j],erfc=erfc_function)
             error_inclined[i,j] = np.abs( (inclined-ex)/ex )
             error_steep[i,j] = np.abs( (steep-ex)/ex )
             exact[i,j] = ex
 
     return error_steep,error_inclined,exact
 
-def make_error_figures(error_steep,error_inclined,zendegmin=0.01,zendegmax=89.99,hxmin=1.,hxmax=50.,vmax=-6):
+def make_error_figures(error_steep,error_inclined,exact,coszenmin=0.001,coszenmax=0.999,hxmin=1.,hxmax=50.,vmax=-6):
 
     '''
     Makes relative error image plots for both approximations
     '''
-    extent = (zendegmin,zendegmax,hxmin,hxmax)
+    extent = (np.log10(coszenmin),np.log10(coszenmax),np.log10(hxmin),np.log10(hxmax))
+    fig,ax =plt.subplots()
+    pl=ax.imshow(exact,extent=extent,origin='lower',aspect='auto')
+    fig.colorbar(pl)
+    ax.set_title('Exact integral result')
+    ax.set_xlabel('Log10 of Cosine of Zenith angle')
+    ax.set_ylabel('Log10 of Altitude of injection, km')
+
+    return
+
     fig,ax=plt.subplots()
     pl=ax.imshow(np.log10(error_steep),extent=extent,origin='lower',vmax=vmax,aspect='auto')
     fig.colorbar(pl)
     ax.set_title('Log10 of relative error, steep approximation')
-    ax.set_xlabel('Zenith angle, degrees')
-    ax.set_ylabel('Altitude of injection, km')
+    ax.set_xlabel('Log10 of Cosine of Zenith angle')
+    ax.set_ylabel('Log10 of Altitude of injection, km')
 
     fig,ax=plt.subplots()
     pl=ax.imshow(np.log10(error_inclined),extent=extent,origin='lower',vmax=vmax,aspect='auto')
     fig.colorbar(pl)
     ax.set_title('Log10 of relative error, inclined approximation')
-    ax.set_xlabel('Zenith angle, degrees')
-    ax.set_ylabel('Altitude of injection, km')
+    ax.set_xlabel('Log10 of Cosine of Zenith angle')
+    ax.set_ylabel('Log10 of Altitude of injection, km')
 
     fig,ax=plt.subplots()
     pl=ax.imshow(np.fmin(np.log10(error_inclined),np.log10(error_steep)),extent=extent,origin='lower',vmax=vmax,aspect='auto')
     fig.colorbar(pl)
     ax.set_title('Log10 of relative error, best approximation')
-    ax.set_xlabel('Zenith angle, degrees')
-    ax.set_ylabel('Altitude of injection, km')
+    ax.set_xlabel('Log10 of Cosine of Zenith angle')
+    ax.set_ylabel('Log10 of Altitude of injection, km')
 
 
 

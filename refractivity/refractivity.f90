@@ -2,13 +2,13 @@ module refractivity
 
 use fadeeva, only : fadeeva_erfc
 
-real(kind=8), parameter :: R=6371.d0, k=0.1218d0, Rs=315.d0, pi=4.d0*atan(1.d0),sqtpi=sqrt(4.d0*atan(1.d0))
+real(kind=8), parameter :: R_earth=6370.949d0, k=0.1218d0, Rs=315.d0, pi=4.d0*atan(1.d0),sqtpi=sqrt(4.d0*atan(1.d0))
 
 contains
 
 real(kind=8) function IK1(u,z,w)
-  real(kind=8), intent(in) :: u,z,w
-  real(kind=8) :: shw2,shw22,chw2,chw22,shw,chw,beta0,beta1,sq2z
+real(kind=8), intent(in) :: u,z,w
+real(kind=8) :: shw2,shw22,chw2,chw22,shw,chw,beta0,beta1,sq2z
   ! Compute trigonometric function of w/2 and of w
   shw2 = sinh(w/2.d0) 
   shw22 = shw2*shw2 ! sh(w/2)**2
@@ -30,7 +30,7 @@ real(kind=8) function IK1(u,z,w)
   
 end function IK1
 
-function s(h,zen)
+function s(h,R,zen)
   real(8), intent(in) :: h, zen
   real(8) :: s
   s = -R*cos(zen) + sqrt(h*h + 2*h*R + cos(zen)**2 * R*R)

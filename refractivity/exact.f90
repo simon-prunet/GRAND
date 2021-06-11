@@ -3,11 +3,10 @@ program exact
   use splines
   implicit none
 
-  real(8) :: beta, hh
   real(8), allocatable, dimension(:) :: tabh, tabcos, tabcos2, tabh2
   integer, parameter :: nh=6, ncos=11
   real(8), parameter :: coszenmin=0.001d0, coszenmax=0.999d0, hmin=0.1d0, hmax=30.d0
-  real(8), allocatable, dimension(:) :: lspace, coeffs
+  real(8), allocatable, dimension(:) :: coeffs
   real(8), allocatable, dimension(:,:) :: res, res2, app2
   integer :: i
 
@@ -25,10 +24,12 @@ program exact
   res = compute_table(tabcos,tabh,R_earth)
   res2 = compute_table(tabcos2,tabh2,R_earth)
   
-  print*,res
-  print*,res2
-  coeffs = compute_coeffs(tabcos,tabh,res,0.d0,3)
+  !print*,res2
+  coeffs = compute_coeffs(tabcos,tabh,res,0.d0)
   !print*,coeffs
+  print*, eval(coeffs,tabcos(1),tabh(1))
+  print*, res(1,1)
+
   !app2 = spline_table(coeffs,tabcos2,tabh2)
 
   !print*,app2-res2

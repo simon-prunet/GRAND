@@ -4,7 +4,7 @@ import scipy.integrate as si
 from scipy.special import erfc
 from matplotlib import pyplot as plt
 
-R_earth = 6371.0 # km
+R_earth = 6370.949 # km
 Rs=315.0
 k=0.1218 #km-1
 

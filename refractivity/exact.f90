@@ -30,8 +30,8 @@ program exact
   print*, eval(coeffs,tabcos(1),tabh(1))
   print*, res(1,1)
 
-  !app2 = spline_table(coeffs,tabcos2,tabh2)
-
+  app2 = grid_eval(coeffs,tabcos2,tabh2)
+  print*, app2
   !print*,app2-res2
 
   ! hh=10.0d0

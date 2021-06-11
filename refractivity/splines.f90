@@ -61,5 +61,25 @@ real(8) function eval(c,x,y)
    eval = zz(1)   
 end function eval
 
+function grid_eval(c,x,y) result(res)
+
+   real(8), DIMENSION(:), INTENT(IN) :: c, x, y
+   real(8), DIMENSION(:,:), ALLOCATABLE :: res
+
+   real(8), DIMENSION(:), ALLOCATABLE :: wrk
+   integer, DIMENSION(:), ALLOCATABLE :: iwrk
+   integer :: lwrk, kwrk, numx, numy, ier
+
+   numx = size(x)
+   numy = size(y)
+   lwrk = numx*(kx+1)+numy*(ky+1)
+   kwrk = numx+numy
+ 
+   allocate(res(numx,numy))
+   allocate(wrk(lwrk),iwrk(kwrk))
+   call bispev(tx,nx,ty,ny,c,kx,ky,x,numx,y,numy,res,wrk,lwrk,iwrk,kwrk,ier)
+   deallocate(wrk,iwrk)
+end function grid_eval
+
 end module splines
 

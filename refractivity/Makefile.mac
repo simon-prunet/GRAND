@@ -2,18 +2,23 @@
 # module load intel
 
 FC = gfortran
-FFLAGS = -ffree-line-length-1024 -O4  #-profile-functions -profile-loops=all -profile-loops-report=2
+FFLAGS = -ffree-line-length-1024 -ggdb  -Wall #-profile-functions -profile-loops=all -profile-loops-report=2
 
-OBJS = fadeeva.o refractivity.o integrate.o
-MODS = fadeeva.mod refractivity.mod
+OBJS = fadeeva.o refractivity.o integrate.o splines.o
+MODS = fadeeva.mod refractivity.mod splines.mod
+LIBS = -L fitpack -lfitpack
 
 
-all:	integrate
+all:	integrate exact
 
 integrate:	$(OBJS) $(MODS)
-	$(FC) $(FFLAGS) -o $@ $(OBJS)
+	$(FC) $(FFLAGS) -o $@ $(OBJS) $(LIBS)
+
+exact: fadeeva.o refractivity.o exact.o $(MODS)
+	$(FC) $(FFLAGS) -o $@ fadeeva.o refractivity.o exact.o splines.o $(LIBS)
+
 clean:
-	rm -rf $(OBJS) $(MODS) integrate
+	rm -rf $(OBJS) $(MODS) integrate exact
 
 %.o:	%.f90
 	$(FC) $(FFLAGS) -c $< -o $@

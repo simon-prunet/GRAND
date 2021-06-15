@@ -1,7 +1,7 @@
 module splines
 
 implicit none
-integer, parameter :: kx = 3, ky = 3
+integer, parameter :: kx = 5, ky = 5
 real(8), allocatable, DIMENSION(:) :: tx, ty
 integer :: nx, ny
 

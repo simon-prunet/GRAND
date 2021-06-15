@@ -4,7 +4,7 @@ program exact
   implicit none
 
   real(8), allocatable, dimension(:) :: tabh, tabcos, tabcos2, tabh2
-  integer, parameter :: nh=6, ncos=11
+  integer, parameter :: nh=51, ncos=101
   real(8), parameter :: coszenmin=0.001d0, coszenmax=0.999d0, hmin=0.1d0, hmax=30.d0
   real(8), allocatable, dimension(:) :: coeffs
   real(8), allocatable, dimension(:,:) :: res, res2, app2
@@ -12,6 +12,10 @@ program exact
 
   tabcos = logspace(coszenmin,coszenmax,ncos)
   tabh = logspace(hmin,hmax,nh)
+
+  !print*, tabcos
+  !print*, tabh
+
   allocate (tabcos2(ncos-1))
   do i=1,ncos-1
     tabcos2(i)=(tabcos(i)+tabcos(i+1))/2.0d0
@@ -25,14 +29,18 @@ program exact
   res2 = compute_table(tabcos2,tabh2,R_earth)
   
   !print*,res2
-  coeffs = compute_coeffs(tabcos,tabh,res,0.d0)
+  coeffs = compute_coeffs(tabh,tabcos,res,0.d0)
   !print*,coeffs
-  print*, eval(coeffs,tabcos(1),tabh(1))
-  print*, res(1,1)
+  !print*,tx
+  !print*,ty
+  print*, tabh(1),tabcos(1),eval(coeffs,tabh(1),tabcos(1))
+  print*, tabh2(1),tabcos2(1),eval(coeffs,tabh2(1),tabcos2(1))
+  !print*, tabcos(1),tabh(1),res(1,1)
 
-  app2 = grid_eval(coeffs,tabcos2,tabh2)
-  print*, app2
-  !print*,app2-res2
+  app2 = grid_eval(coeffs,tabh2,tabcos2)
+  !print*, app2
+  !print*, res
+  !print*,stdev(app2-res2)
 
   ! hh=10.0d0
   ! beta=50.0d0
